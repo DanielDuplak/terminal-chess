@@ -1,3 +1,4 @@
+#include "game.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -11,14 +12,12 @@ struct piece
 {
     enum piece_type type;
     bool is_white;
-    int pos_x;
-    int pos_y;
     int** potential_moves;
     int num_of_moves;
 };
 
 
-struct piece* create_piece(enum piece_type type, bool is_white, int pos_x, int pos_y);
+struct piece* create_piece(enum piece_type type, bool is_white);
 
 
 struct piece* destroy_piece(struct piece* piece);

@@ -4,12 +4,8 @@
 #include <stdbool.h>
 
 
-struct piece* create_piece(enum piece_type type, bool is_white, int pos_x, int pos_y)
+struct piece* create_piece(enum piece_type type, bool is_white)
 {
-    if(pos_x < 0 || pos_y < 0)
-    {
-        return NULL;
-    }
 
     struct piece* new_piece = (struct piece*)malloc(sizeof(struct piece));
     if(new_piece == NULL)
@@ -18,8 +14,6 @@ struct piece* create_piece(enum piece_type type, bool is_white, int pos_x, int p
     }
     new_piece->is_white = is_white;
     new_piece->type = type;
-    new_piece->pos_x = pos_x;
-    new_piece->pos_y = pos_y;
     new_piece->num_of_moves = 0;
     new_piece->potential_moves = NULL;
 
