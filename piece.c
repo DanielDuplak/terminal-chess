@@ -14,8 +14,7 @@ struct piece* create_piece(enum piece_type type, bool is_white)
     }
     new_piece->is_white = is_white;
     new_piece->type = type;
-    new_piece->num_of_moves = 0;
-    new_piece->potential_moves = NULL;
+    new_piece->move_list = NULL;
 
     return new_piece;
 }
@@ -26,37 +25,87 @@ struct piece* destroy_piece(struct piece* piece)
     {
         return NULL;
     }
-    if(piece->potential_moves == NULL)
+    if(piece->move_list == NULL)
     {
         free(piece);
         piece = NULL;
         return NULL;
     }
-    for(int i = 0; i < piece->num_of_moves; i++)
-    {
-        free(piece->potential_moves[i]);
-    }
-    free(piece->potential_moves);
+    piece->move_list = clear_potential_moves(piece->move_list);
     free(piece);
     piece = NULL;
     return NULL;
 }
 
 
-void clear_potential_moves(struct piece* piece)
+struct move* clear_potential_moves(struct move* first)
 {
-    if(piece == NULL)
+    if(first == NULL)
     {
-        return;
+        return NULL;
     }
-    if(piece->potential_moves == NULL)
+    while(first != NULL)
     {
-        return;
+        struct move* next = first->next;
+        free(first);
+        first = next;
     }
-    for(int i = 0; i < piece->num_of_moves; i++)
+    return NULL;
+}
+
+struct move* create_move_list(struct move* first, int row, int col)
+{
+    struct move* new_move = (struct move*) malloc(sizeof(struct move));
+    if(new_move == NULL)
     {
-        free(piece->potential_moves[i]);
+        return NULL;
     }
-    free(piece->potential_moves);
-    piece->potential_moves = NULL;
+    new_move->row = row;
+    new_move->col = col;
+    if(first == NULL)
+    {
+        return new_move;
+    }
+    struct move* temp = first;
+    while(temp->next != NULL)
+    {
+        temp = temp->next;
+    }
+    temp->next = new_move;
+    return new_move;
+}
+
+struct move* remove_move(struct move* first, struct move* move_to_remove)
+{
+    if(first == NULL)
+    {
+        return NULL;
+    }
+    if(move_to_remove == NULL)
+    {
+        return NULL;
+    }
+
+    struct move* current = first;
+    struct move* prev = NULL;
+    
+    while(current != NULL)
+    {
+        if(current == move_to_remove)
+        {
+            if(prev != NULL)
+            {
+                prev->next = current->next;
+            }
+            else
+            {
+                first = current->next;
+            }
+            free(current);
+            return first;
+        }
+        prev = current;
+        current = current->next;
+    }
+    return first;
 }

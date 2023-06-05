@@ -6,12 +6,12 @@ MKDIR_P := mkdir -p
 
 
 MAIN_TARGET := chess
-MAIN_SRCS := main.c game.c board.c piece.c
+MAIN_SRCS := main.c game.c board.c piece.c move_handler.c
 
 # Tests compilation target and its source files
 TEST_TARGET := tests/all_tests
-TEST_SRCS := game.c board.c piece.c \
-	 tests/all_tests.c tests/test_game.c tests/test_board.c tests/test_piece.c
+TEST_SRCS := game.c board.c piece.c move_handler.c \
+	 tests/all_tests.c tests/test_game.c tests/test_board.c tests/test_piece.c tests/move_handler.c
 
 # Build directory
 BUILD_DIR := ./build

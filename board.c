@@ -16,6 +16,29 @@ void create_board(struct piece* board[ROWS][COLS])
     {
         board[6][i] = create_piece(PAWN, true);
         board[1][i] = create_piece(PAWN, false);
+        if(i == 0 || i == 7)
+        {
+            board[7][i] = create_piece(ROOK, true);
+            board[0][i] = create_piece(ROOK, false);
+        }
+        else if(i == 1 || i == 6)
+        {
+            board[7][i] = create_piece(KNIGHT, true);
+            board[0][i] = create_piece(KNIGHT, false);
+        }
+        else if(i == 2 || i == 5)
+        {
+            board[7][i] = create_piece(BISHOP, true);
+            board[0][i] = create_piece(BISHOP, false);
+        }
+        else if(i == 3)
+        {
+            board[7][i] = create_piece(QUEEN, true);
+            board[0][i] = create_piece(QUEEN, false);
+
+            board[7][i+1] = create_piece(KING, true);
+            board[0][i+1] = create_piece(KING, false);
+        }
     }
 }
 
@@ -23,9 +46,11 @@ void create_board(struct piece* board[ROWS][COLS])
 void render_board(struct piece* board[ROWS][COLS])
 {
     char c;
+    print_letters();
     render_line();
     for(int row = 0; row < ROWS; row++)
     {
+        printf("%d ", 8-row);
         for(int col = 0; col < COLS; col++)
         {
             printf(YEL "| " RESET);
@@ -50,7 +75,8 @@ void render_board(struct piece* board[ROWS][COLS])
 
 void render_line()
 {
-    for(int i = 0; i < 8; i++)
+    printf("  ");
+    for(int i = 0; i < ROWS; i++)
     {
         printf(YEL "o---" RESET);
         if(i == 7)
@@ -58,6 +84,16 @@ void render_line()
             printf(YEL "o\n" RESET);
         }
     }
+}
+
+void print_letters()
+{
+    printf("  ");
+    for(int i = 0; i < ROWS; i++)
+    {
+        printf("  %c ", (char)(i+'A'));
+    }
+    printf("\n");
 }
 
 char get_piece_char_for_render(enum piece_type type)
