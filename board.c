@@ -1,18 +1,20 @@
 #include "board.h"
 #include <stdio.h>
+#include <ncurses.h>
 
+void highlight_square(int row, int col);
 
-void create_board(struct piece* board[ROWS][COLS])
+void create_board(struct piece* board[BOARD_ROWS][BOARD_COLS])
 {
-    for(int row = 0; row < ROWS; row++)
+    for(int row = 0; row < BOARD_ROWS; row++)
     {
-        for(int col = 0; col < COLS; col++)
+        for(int col = 0; col < BOARD_COLS; col++)
         {
             board[row][col] = NULL;
         }
     }
 
-    for(int i = 0; i < COLS; i++)
+    for(int i = 0; i < BOARD_COLS; i++)
     {
         board[6][i] = create_piece(PAWN, true);
         board[1][i] = create_piece(PAWN, false);
@@ -43,15 +45,15 @@ void create_board(struct piece* board[ROWS][COLS])
 }
 
 
-void render_board(struct piece* board[ROWS][COLS])
+void render_board(struct piece* board[BOARD_ROWS][BOARD_COLS])
 {
     char c;
     print_letters();
     render_line();
-    for(int row = 0; row < ROWS; row++)
+    for(int row = 0; row < BOARD_ROWS; row++)
     {
         printf("%d ", 8-row);
-        for(int col = 0; col < COLS; col++)
+        for(int col = 0; col < BOARD_COLS; col++)
         {
             printf(YEL "| " RESET);
             if(board[row][col] != NULL)
@@ -64,7 +66,7 @@ void render_board(struct piece* board[ROWS][COLS])
                 printf("  ");
             }
 
-            if(col == COLS-1)
+            if(col == BOARD_COLS-1)
             {
                 printf(YEL "|\n" RESET);
             }
@@ -76,7 +78,7 @@ void render_board(struct piece* board[ROWS][COLS])
 void render_line()
 {
     printf("  ");
-    for(int i = 0; i < ROWS; i++)
+    for(int i = 0; i < BOARD_ROWS; i++)
     {
         printf(YEL "o---" RESET);
         if(i == 7)
@@ -89,7 +91,7 @@ void render_line()
 void print_letters()
 {
     printf("  ");
-    for(int i = 0; i < ROWS; i++)
+    for(int i = 0; i < BOARD_ROWS; i++)
     {
         printf("  %c ", (char)(i+'A'));
     }
@@ -122,4 +124,93 @@ char get_piece_char_for_render(enum piece_type type)
         return 'o';
         break;
     }
+}
+
+void draw_board(struct piece* board[BOARD_ROWS][BOARD_COLS]) 
+{
+    attron(COLOR_PAIR(8));
+    for (int row = 0; row < BOARD_ROWS; row++) 
+    {
+        for (int col = 0; col < BOARD_COLS; col++) 
+        {
+            int x = col * 4;
+            int y = row * 2;
+
+            mvprintw(y, x, "o---o");
+            mvprintw(y+1,x,"|");
+
+            if (board[row][col] != NULL) 
+            {
+                attroff(COLOR_PAIR(8));
+                if(board[row][col]->is_white)
+                {
+                    attron(COLOR_PAIR(6));
+                }
+                else
+                {
+                    attron(COLOR_PAIR(2));
+                }
+                mvprintw(y + 1, x + 2, "%c", get_piece_char_for_render(board[row][col]->type));
+                attroff(COLOR_PAIR(6));
+                attroff(COLOR_PAIR(2));
+                attron(COLOR_PAIR(8));
+            } 
+            else 
+            {
+                mvprintw(y + 1, x + 2, "   ");
+            }
+
+            mvprintw(y+1,x+4,"|");
+            if(col == 7)
+            {
+                mvprintw(y+2,x,"o---o");
+            }
+            else
+            {
+                mvprintw(y+2,x,"o---");
+            }
+        }
+    }
+    attroff(COLOR_PAIR(8));
+
+    attron(COLOR_PAIR(1));
+    int x = 0;
+    int y = 0;
+    for (int i = 0; i < BOARD_ROWS; i++) 
+    {
+        mvprintw(BOARD_ROWS * 2 + 1, x + 2, "%c", (char)(i+'A'));
+        mvprintw(y + 1, BOARD_COLS * 4 + 2, "%d", BOARD_ROWS - i);
+        y += 2;
+        x += 4;
+    }
+    attroff(COLOR_PAIR(1));
+}
+
+void highlight_squares(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col) 
+{
+    struct piece* piece = board[row][col];
+    if(piece->move_list == NULL)
+    {
+        return;
+    }
+    attron(COLOR_PAIR(1));
+    struct move* current = piece->move_list;
+    while(current != NULL)
+    {
+        highlight_square(current->row, current->col);
+        current = current->next;
+    }
+    highlight_square(row, col);
+
+    attroff(COLOR_PAIR(1));
+}
+
+void highlight_square(int row, int col)
+{
+    int x = col * 4;
+    int y = row * 2;
+    mvprintw(y, x, "o---o");
+    mvprintw(y+1,x,"|");
+    mvprintw(y+1,x+4,"|");
+    mvprintw(y+2,x,"o---o");
 }

@@ -3,22 +3,18 @@
 #include <stdlib.h>
 
 
-bool update_potential_moves(struct piece* board[ROWS][COLS], bool whites_turn, int row, int col)
+bool update_potential_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool whites_turn, int row, int col)
 {
-    printf("row: %d col: %d\n", row, col);
-    if(row < 0 || col < 0 || row >= ROWS || col >= COLS)
+    if(row < 0 || col < 0 || row >= BOARD_ROWS || col >= BOARD_COLS)
     {
-        printf("got here\n");
         return false;
     }
     if(board[row][col] == NULL)
     {
-        printf("got here\n");
         return false;
     }
     if(board[row][col]->is_white != whites_turn)
     {
-        printf("got here\n");
         return false;
     }
     board[row][col]->move_list = clear_potential_moves(board[row][col]->move_list);
@@ -50,22 +46,24 @@ bool update_potential_moves(struct piece* board[ROWS][COLS], bool whites_turn, i
     }
     if(found_move)
     {
-        printf("got to found_move\n");
         return try_potential_moves(board, whites_turn, row, col);
     }
-    printf("GOT HERE!\n");
     
     return false;
 }
 
-bool get_pawn_moves(struct piece* board[ROWS][COLS], bool whites_turn, int row, int col)
+bool get_pawn_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool whites_turn, int row, int col)
 {
-    printf("I am a pawn\n");
     bool found_moves = false;
     int direction = whites_turn ? -1 : 1;
-    if(row + direction < 0 || row + direction >= ROWS)
+    if(row + direction < 0 || row + direction >= BOARD_ROWS)
     {
         return false;
+    }
+    if(board[row + (direction * 2)][col] == NULL && ((row == 6 && whites_turn) || (row == 1 && !whites_turn)))
+    {
+        add_move_to_piece(board[row][col], row+(direction*2), col);
+        found_moves = true;
     }
     if(board[row + direction][col] == NULL)
     {
@@ -77,15 +75,29 @@ bool get_pawn_moves(struct piece* board[ROWS][COLS], bool whites_turn, int row, 
         add_move_to_piece(board[row][col], row+direction, col-1);
         found_moves = true;
     }
-    if(col+1 < COLS && board[row + direction][col+1] != NULL && board[row + direction][col+1]->is_white != whites_turn)
+    if(col+1 < BOARD_COLS && board[row + direction][col+1] != NULL && board[row + direction][col+1]->is_white != whites_turn)
     {
         add_move_to_piece(board[row][col], row+direction, col+1);
         found_moves = true;
     }
+
+    //en passant
+    /*
+    if(col - 1 >= 0 && board[row + direction][col - 1] == NULL && board[row][col-1] != NULL && board[row][col-1]->is_white != whites_turn && board[row][col-1]->has_moved_two_spaces)
+    {
+        add_move_to_piece(board[row][col], row+direction, col-1);
+        found_moves = true;
+    }
+    if(col + 1 >= 0 && board[row + direction][col + 1] == NULL && board[row][col+1] != NULL && board[row][col+1]->is_white != whites_turn && board[row][col+1]->has_moved_two_spaces)
+    {
+        add_move_to_piece(board[row][col], row+direction, col+1);
+        found_moves = true;
+    }
+    */
     return found_moves;
 }
 
-bool get_king_moves(struct piece* board[ROWS][COLS], int row, int col)
+bool get_king_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col)
 {
     bool found_moves = false;
     int moves[8][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, 1}, {1, -1}, {-1, -1}};
@@ -95,7 +107,7 @@ bool get_king_moves(struct piece* board[ROWS][COLS], int row, int col)
         int new_row = row + moves[i][0];
         int new_col = col + moves[i][1];
 
-        if (new_row >= 0 && new_row < ROWS && new_col >= 0 && new_col < COLS &&
+        if (new_row >= 0 && new_row < BOARD_ROWS && new_col >= 0 && new_col < BOARD_COLS &&
             (board[new_row][new_col] == NULL || board[new_row][new_col]->is_white != board[row][col]->is_white))
         {
             add_move_to_piece(board[row][col], new_row, new_col);
@@ -106,7 +118,7 @@ bool get_king_moves(struct piece* board[ROWS][COLS], int row, int col)
     return found_moves;
 }
 
-bool get_knight_moves(struct piece* board[ROWS][COLS], int row, int col)
+bool get_knight_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col)
 {
     bool found_moves = false;
     int moves[8][2] = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {-1, 2}, {1, 2}, {-1, -2}, {1, -2}};
@@ -116,7 +128,7 @@ bool get_knight_moves(struct piece* board[ROWS][COLS], int row, int col)
         int new_row = row + moves[i][0];
         int new_col = col + moves[i][1];
 
-        if (new_row >= 0 && new_row < ROWS && new_col >= 0 && new_col < COLS &&
+        if (new_row >= 0 && new_row < BOARD_ROWS && new_col >= 0 && new_col < BOARD_COLS &&
             (board[new_row][new_col] == NULL || board[new_row][new_col]->is_white != board[row][col]->is_white))
         {
             add_move_to_piece(board[row][col], new_row, new_col);
@@ -127,7 +139,7 @@ bool get_knight_moves(struct piece* board[ROWS][COLS], int row, int col)
     return found_moves;
 }
 
-bool get_diagonal_moves(struct piece* board[ROWS][COLS], int row, int col)
+bool get_diagonal_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col)
 {
     bool found_moves = false;
     int directions[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
@@ -138,7 +150,7 @@ bool get_diagonal_moves(struct piece* board[ROWS][COLS], int row, int col)
         int new_row = row + x;
         int new_col = col + y;
 
-        while(new_row >= 0 && new_row < ROWS && new_col >= 0 && new_col < COLS)
+        while(new_row >= 0 && new_row < BOARD_ROWS && new_col >= 0 && new_col < BOARD_COLS)
         {
             if(board[new_row][new_col] == NULL || board[new_row][new_col]->is_white != board[row][col]->is_white)
             {
@@ -156,7 +168,7 @@ bool get_diagonal_moves(struct piece* board[ROWS][COLS], int row, int col)
     return found_moves;
 }
 
-bool get_straight_moves(struct piece* board[ROWS][COLS], int row, int col)
+bool get_straight_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col)
 {
     bool found_moves = false;
     int directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
@@ -168,7 +180,7 @@ bool get_straight_moves(struct piece* board[ROWS][COLS], int row, int col)
         int new_row = row + x;
         int new_col = col + y;
 
-        while(new_row >= 0 && new_row < ROWS && new_col >= 0 && new_col < COLS)
+        while(new_row >= 0 && new_row < BOARD_ROWS && new_col >= 0 && new_col < BOARD_COLS)
         {
             if(board[new_row][new_col] == NULL || board[new_row][new_col]->is_white != board[row][col]->is_white)
             {
@@ -186,7 +198,7 @@ bool get_straight_moves(struct piece* board[ROWS][COLS], int row, int col)
     return found_moves;
 }
 
-bool is_piece_in_check(struct piece* board[ROWS][COLS], int row, int col)
+bool is_piece_in_check(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col)
 {
     int diagonal_directions[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     int straight_directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
@@ -198,7 +210,7 @@ bool is_piece_in_check(struct piece* board[ROWS][COLS], int row, int col)
         int new_row = row + dx;
         int new_col = col + dy;
 
-        while (new_row >= 0 && new_row < ROWS && new_col >= 0 && new_col < COLS)
+        while (new_row >= 0 && new_row < BOARD_ROWS && new_col >= 0 && new_col < BOARD_COLS)
         {
             if (board[new_row][new_col] != NULL)
             {
@@ -230,7 +242,7 @@ bool is_piece_in_check(struct piece* board[ROWS][COLS], int row, int col)
         int new_row = row + dx;
         int new_col = col + dy;
 
-        while (new_row >= 0 && new_row < ROWS && new_col >= 0 && new_col < COLS)
+        while (new_row >= 0 && new_row < BOARD_ROWS && new_col >= 0 && new_col < BOARD_COLS)
         {
             if (board[new_row][new_col] != NULL)
             {
@@ -257,11 +269,11 @@ bool is_piece_in_check(struct piece* board[ROWS][COLS], int row, int col)
     return false;
 }
 
-bool is_king_in_check(struct piece* board[ROWS][COLS], bool whites_turn)
+bool is_king_in_check(struct piece* board[BOARD_ROWS][BOARD_COLS], bool whites_turn)
 {
-    for(int row = 0; row < ROWS; row++)
+    for(int row = 0; row < BOARD_ROWS; row++)
     {
-        for(int col = 0; col < COLS; col++)
+        for(int col = 0; col < BOARD_COLS; col++)
         {
             if(board[row][col] != NULL && board[row][col]->is_white == whites_turn && board[row][col]->type == KING && is_piece_in_check(board, row, col))
             {
@@ -284,7 +296,7 @@ void add_move_to_piece(struct piece* piece, int row, int col)
     }
 }
 
-bool try_potential_moves(struct piece* board[ROWS][COLS], bool whites_turn, int row, int col)
+bool try_potential_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool whites_turn, int row, int col)
 {
     if (board[row][col]->move_list == NULL)
     {
@@ -314,9 +326,10 @@ bool try_potential_moves(struct piece* board[ROWS][COLS], bool whites_turn, int 
 
 
 //toto treba prerobit
-bool move_piece(struct piece* board[ROWS][COLS], int cur_row, int cur_col, int row, int col)
+bool move_piece(struct piece* board[BOARD_ROWS][BOARD_COLS], int cur_row, int cur_col, int row, int col)
 {
     struct piece* piece = board[cur_row][cur_col];
+    piece->has_moved_two_spaces = (piece->type == PAWN && abs(cur_row-row) == 2) ? true : false;
     if(piece == NULL)
     {
         return false;

@@ -12,6 +12,7 @@ struct piece
     enum piece_type type;
     bool is_white;
     struct move* move_list;
+    bool has_moved_two_spaces;
 };
 
 struct move

@@ -15,6 +15,7 @@ struct piece* create_piece(enum piece_type type, bool is_white)
     new_piece->is_white = is_white;
     new_piece->type = type;
     new_piece->move_list = NULL;
+    new_piece->has_moved_two_spaces = false;
 
     return new_piece;
 }
@@ -33,7 +34,6 @@ struct piece* destroy_piece(struct piece* piece)
     }
     piece->move_list = clear_potential_moves(piece->move_list);
     free(piece);
-    piece = NULL;
     return NULL;
 }
 

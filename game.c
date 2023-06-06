@@ -1,12 +1,13 @@
 #include "game.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "renderer.h"
 
-bool is_game_over(struct piece* board[ROWS][COLS], bool is_whites_turn)
+bool is_game_over(struct piece* board[BOARD_ROWS][BOARD_COLS], bool is_whites_turn)
 { 
-    for(int row = 0; row < ROWS; row++)
+    for(int row = 0; row < BOARD_ROWS; row++)
     {
-        for(int col = 0; col < COLS; col++)
+        for(int col = 0; col < BOARD_COLS; col++)
         {
             if(board[row][col] != NULL && board[row][col]->is_white == is_whites_turn)
             {
@@ -22,64 +23,81 @@ bool is_game_over(struct piece* board[ROWS][COLS], bool is_whites_turn)
 
 void play_game()
 {
-    struct piece* board[ROWS][COLS];
+    struct piece* board[BOARD_ROWS][BOARD_COLS];
     create_board(board);
     bool is_whites_turn = true;
+
+    init_rendering();
     
     while(!is_game_over(board, is_whites_turn))
     {
-        system("clear");
-        render_board(board);
-        int select_row = -1;
-        int select_col = -1;
-        int input_row = -2;
-        int input_col = -2;
-        printf("is whites turn: %d\n", is_whites_turn);
+        draw_board(board);
+        refresh();
+        int mx, my;
+        int row, col;
+        int row_move, col_move;
+
         do
         {
-            printf("select piece\n");
-            scanf("%d %d", &select_row, &select_col);
-        }while(!update_potential_moves(board, is_whites_turn, select_row, select_col));
-        
-        render_potential_moves(board[select_row][select_col]);
-        do
+            handle_mouse_events(&my, &mx);
+            convert_mouse_pos_to_board_pos(my, mx, &row, &col);
+        } while (!update_potential_moves(board, is_whites_turn, row, col));
+
+        highlight_squares(board, row, col);
+        refresh();
+        handle_mouse_events(&my, &mx);
+        convert_mouse_pos_to_board_pos(my, mx, &row_move, &col_move);
+        if(!move_piece(board, row, col, row_move, col_move))
         {
-            printf("Select input: select row: %d, select col: %d\n", select_row, select_col);
-            scanf("%d %d", &input_row, &input_col);
-            printf("%d %d\n", input_row, input_col);
-            
-            //if(input_row == -1 && input_col == -1)
-            //{
-            //    continue;
-            //}
-            
-        }while(!move_piece(board, select_row, select_col, input_row, input_col));
+            continue;
+        }
         is_whites_turn = !is_whites_turn;
     }
 
+    refresh();
     destroy_game(board);
+    endwin();
+    exit(0);
 }
 
-void render_potential_moves(struct piece* piece)
+void convert_mouse_pos_to_board_pos(int y, int x, int* row, int* col)
 {
-    if(piece == NULL)
+    *row = y/2;
+    *col = x/4;
+}
+
+void handle_mouse_events(int* y, int* x)
+{
+    MEVENT event;
+    int c;
+    int exit_flag = 0;
+
+    while (!exit_flag) 
     {
-        return;
-    }
-    printf("Potential moves:\n");
-    struct move* current = piece->move_list;
-    while(current != NULL)
-    {
-        printf("%d %d\n", current->row, current->col);
-        current = current->next;
+        refresh();
+        c = wgetch(stdscr);
+        switch (c) 
+        {
+            case KEY_MOUSE:
+                if (getmouse(&event) == OK) 
+                {
+                    if(event.bstate & (BUTTON1_CLICKED))
+                    {	
+                        *x = event.x;
+                        *y = event.y;
+                        exit_flag = 1;
+                    }
+                }
+                break;
+        }
     }
 }
 
-void destroy_game(struct piece* board[ROWS][COLS])
+void destroy_game(struct piece* board[BOARD_ROWS][BOARD_COLS])
 {
-    for(int row = 0; row < ROWS; row++)
+    for(int row = 0; row < BOARD_ROWS; row++)
     {
-        for(int col = 0; col < COLS; col++)
+        for(int col = 0; col < BOARD_COLS; col++)
         {
             destroy_piece(board[row][col]);
         }

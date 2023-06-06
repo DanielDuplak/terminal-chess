@@ -1,17 +1,17 @@
 
 CC := gcc
-CFLAGS := -Wall -Werror -std=c11 -g -MMD -MP -fprofile-arcs -ftest-coverage
-LDFLAGS := -lgcov --coverage
+CFLAGS := -Wall -Werror -std=c11 -g -MMD -MP -fprofile-arcs -ftest-coverage -lncurses
+LDFLAGS := -lgcov --coverage -lncurses
 MKDIR_P := mkdir -p
 
 
 MAIN_TARGET := chess
-MAIN_SRCS := main.c game.c board.c piece.c move_handler.c
+MAIN_SRCS := main.c game.c board.c piece.c move_handler.c renderer.c
 
 # Tests compilation target and its source files
 TEST_TARGET := tests/all_tests
-TEST_SRCS := game.c board.c piece.c move_handler.c \
-	 tests/all_tests.c tests/test_game.c tests/test_board.c tests/test_piece.c tests/move_handler.c
+TEST_SRCS := game.c board.c piece.c move_handler.c renderer.c \
+	 tests/all_tests.c tests/test_game.c tests/test_board.c tests/test_piece.c tests/move_handler.c tests/renderer.c
 
 # Build directory
 BUILD_DIR := ./build
@@ -46,10 +46,10 @@ clean:
 
 # Compiling targets
 $(BUILD_DIR)/$(MAIN_TARGET): $(MAIN_OBJS)
-	$(CC) -o $@ $(LDFLAGS) $^
+	$(CC) -o $@ $(LDFLAGS) $^ -lncurses
 
 $(BUILD_DIR)/$(TEST_TARGET): $(TEST_OBJS)
-	$(CC) -o $@ $(LDFLAGS) $^
+	$(CC) -o $@ $(LDFLAGS) $^ -lncurses
 
 # Compiling individual modules
 $(BUILD_DIR)/%.o: %.c
