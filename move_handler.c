@@ -13,11 +13,11 @@ bool update_potential_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool wh
     {
         return false;
     }
+    board[row][col]->move_list = clear_potential_moves(board[row][col]);
     if(board[row][col]->is_white != whites_turn)
     {
         return false;
     }
-    board[row][col]->move_list = clear_potential_moves(board[row][col]);
 
     bool found_move = false;
     
@@ -328,32 +328,64 @@ void add_move_to_piece(struct piece* piece, int row, int col)
 
 bool try_potential_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool whites_turn, int row, int col)
 {
-    if (board[row][col]->move_list == NULL)
+    if (board[row][col] == NULL || board[row][col]->move_list == NULL)
     {
         return false;
     }
+
     struct move* current = board[row][col]->move_list;
-    struct move* next;
+    struct move* previous = NULL;
+    struct move* move_to_remove;
+    struct piece* original_piece;
+    struct piece* temp_piece;
+
     while (current != NULL)
     {
-        next = current->next;
-        struct piece* original_piece = board[row][col];
-        struct piece* temp_piece = NULL;
+        original_piece = board[row][col];
+        temp_piece = NULL;
+
         if (board[current->row][current->col] != NULL)
         {
             temp_piece = board[current->row][current->col];
         }
-        board[current->row][current->col] = board[row][col];
+
+        board[current->row][current->col] = original_piece;
         board[row][col] = NULL;
+
         if (is_king_in_check(board, whites_turn))
         {
-            board[current->row][current->col]->move_list = remove_move(board[current->row][current->col]->move_list, current);
+            board[current->row][current->col] = temp_piece;
+            board[row][col] = original_piece;
+
+            move_to_remove = current;
+
+            if (previous != NULL)
+            {
+                previous->next = current->next;
+            }
+            else
+            {
+                board[row][col]->move_list = current->next;
+            }
+
+            current = current->next;
+            free(move_to_remove);
         }
-        board[row][col] = original_piece;
-        board[current->row][current->col] = temp_piece;
-        current = next;
+        else
+        {
+            board[row][col] = original_piece;
+            board[current->row][current->col] = temp_piece;
+            previous = current;
+            current = current->next;
+        }
     }
-    return (board[row][col]->move_list != NULL) ? true : false;
+
+    if (board[row][col]->move_list == NULL)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 

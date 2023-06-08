@@ -5,6 +5,10 @@
 
 bool is_game_over(struct piece* board[BOARD_ROWS][BOARD_COLS], bool is_whites_turn)
 { 
+    if(is_king_in_check(board, is_whites_turn) == false)
+    {
+        return false;
+    }
     for(int row = 0; row < BOARD_ROWS; row++)
     {
         for(int col = 0; col < BOARD_COLS; col++)
@@ -30,6 +34,7 @@ void play_game()
     bool is_whites_turn = true;
 
     init_rendering();
+    int a = 0;
     
     while(!is_game_over(board, is_whites_turn))
     {
@@ -49,11 +54,13 @@ void play_game()
         refresh();
         handle_mouse_events(&my, &mx);
         convert_mouse_pos_to_board_pos(my, mx, &row_move, &col_move);
+
         if(!move_piece(board, row, col, row_move, col_move))
         {
             continue;
         }
         is_whites_turn = !is_whites_turn;
+        
     }
 
     refresh();

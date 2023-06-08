@@ -115,6 +115,12 @@ TEST test_try_potential_moves()
         current = current->next;
     }
 
+    create_board_fen(board, "rnbqkbnr/ppppp2p/5pp1/7Q/4P3/8/PPPP1PPP/RNB1KBNR");
+    result = get_queen_moves(board, 3, 7);
+    ASSERT(result == true);
+    ASSERT(try_potential_moves(board, true, 3, 7) == true);
+    destroy_game(board);
+
     PASS();
 }
 
