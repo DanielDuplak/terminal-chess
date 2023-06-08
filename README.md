@@ -1,6 +1,6 @@
 # Terminal Chess
 
-Simple terminal chess program
+Simple terminal chess program written in C
 
 ## Compilation
 
