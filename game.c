@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "renderer.h"
+#include <unistd.h>
 
 bool is_game_over(struct piece* board[BOARD_ROWS][BOARD_COLS], bool is_whites_turn)
 { 
@@ -34,7 +35,6 @@ void play_game()
     bool is_whites_turn = true;
 
     init_rendering();
-    int a = 0;
     
     while(!is_game_over(board, is_whites_turn))
     {
@@ -60,10 +60,11 @@ void play_game()
             continue;
         }
         is_whites_turn = !is_whites_turn;
-        
     }
 
+    draw_board(board);
     refresh();
+    sleep(2);
     destroy_game(board);
     endwin();
     exit(0);
