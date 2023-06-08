@@ -1,6 +1,6 @@
 # Terminal Chess
 
-Simple terminal chess program written in C
+Simple terminal chess program with move highlighting and fen string reading written in C
 
 ## Compilation
 
@@ -22,3 +22,11 @@ The compiled game, along with all other compilation results, is stored in the 'b
 
 * Includes the ncurses library
 * Includes the [greatest](https://github.com/silentbicycle/greatest/) library
+
+
+
+![image](https://github.com/DanielDuplak/terminal-chess/assets/95124692/0645479e-8eb4-46b8-82e7-829ba754720b)
+
+![image](https://github.com/DanielDuplak/terminal-chess/assets/95124692/e01390e5-89d9-4c89-93d9-938998fd390e)
+
+
