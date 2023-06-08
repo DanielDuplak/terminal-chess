@@ -36,8 +36,8 @@ void play_game()
         draw_board(board);
         refresh();
         int mx, my;
-        int row, col;
-        int row_move, col_move;
+        int row, col = -1;
+        int row_move, col_move = -1;
 
         do
         {

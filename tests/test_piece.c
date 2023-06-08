@@ -35,6 +35,7 @@ TEST test_clear_potential_moves()
     struct move* result = clear_potential_moves(piece);
     ASSERT(result == NULL);
     ASSERT(piece->move_list == NULL);
+    destroy_piece(piece);
     PASS();
 }
 
@@ -65,12 +66,12 @@ TEST test_create_move_list()
     struct piece* piece = create_piece(ROOK, true);
     piece->move_list = first;
 
-    destroy_piece(piece);  // Cleanup any remaining pieces
+    destroy_piece(piece);
 
     PASS();
 }
 
-// Test remove_move function
+
 TEST test_remove_move()
 {
     struct piece* piece = create_piece(KNIGHT, false);
@@ -95,6 +96,21 @@ TEST test_remove_move()
         ASSERT(current1->row != 3 && current1->col != 4);
         current1 = current1->next;
     }
+
+    current1 = piece->move_list;
+    while(current1 != NULL)
+    {
+        ASSERT(current1->row == 1 || current1->row == 5);
+        ASSERT(current1->col == 2 || current1->col == 6);
+        current1 = current1->next;
+    }
+    destroy_piece(piece);
+
+    struct piece* piece2 = create_piece(KNIGHT, false);
+    piece->move_list = create_move_list(NULL, 1, 2);
+    piece2->move_list = remove_move(piece2->move_list, piece2->move_list);
+    ASSERT(piece2->move_list == NULL);
+    destroy_piece(piece2);
 
     PASS();
 }

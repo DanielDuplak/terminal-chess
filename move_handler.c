@@ -333,8 +333,10 @@ bool try_potential_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool white
         return false;
     }
     struct move* current = board[row][col]->move_list;
+    struct move* next;
     while (current != NULL)
     {
+        next = current->next;
         struct piece* original_piece = board[row][col];
         struct piece* temp_piece = NULL;
         if (board[current->row][current->col] != NULL)
@@ -345,11 +347,11 @@ bool try_potential_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool white
         board[row][col] = NULL;
         if (is_king_in_check(board, whites_turn))
         {
-            remove_move(board[current->row][current->col]->move_list, current);
+            board[current->row][current->col]->move_list = remove_move(board[current->row][current->col]->move_list, current);
         }
         board[row][col] = original_piece;
         board[current->row][current->col] = temp_piece;
-        current = current->next;
+        current = next;
     }
     return (board[row][col]->move_list != NULL) ? true : false;
 }

@@ -27,25 +27,24 @@ TEST test_get_pawn_moves()
 
 TEST test_is_piece_in_check()
 {
-    struct piece* board1[BOARD_ROWS][BOARD_COLS];
-    create_board_fen(board1, "5k2/8/8/8/1B6/8/8/8");
-    ASSERT(is_piece_in_check(board1, 0, 5));
-    destroy_game(board1);
+    struct piece* board[BOARD_ROWS][BOARD_COLS];
 
-    struct piece* board2[BOARD_ROWS][BOARD_COLS];
-    create_board_fen(board2, "8/8/4k3/8/5N2/8/8/8");
-    ASSERT(is_piece_in_check(board2, 2, 4));
-    destroy_game(board2);
+    create_board_fen(board, "5k2/8/8/8/1B6/8/8/8");
+    ASSERT(is_piece_in_check(board, 0, 5));
+    destroy_game(board);
 
-    struct piece* board3[BOARD_ROWS][BOARD_COLS];
-    create_board_fen(board3, "8/8/5r2/8/8/8/5P2/8");
-    ASSERT(is_piece_in_check(board3, 6, 5));
-    destroy_game(board3);
+    create_board_fen(board, "8/8/4k3/8/5N2/8/8/8");
+    ASSERT(is_piece_in_check(board, 2, 4));
+    destroy_game(board);
 
-    struct piece* board4[BOARD_ROWS][BOARD_COLS];
-    create_board_fen(board4, "8/1r3p2/8/7b/8/8/3K4/8");
-    ASSERT(is_piece_in_check(board4, 6, 3) == false);
-    destroy_game(board4);
+    create_board_fen(board, "8/8/5r2/8/8/8/5P2/8");
+    ASSERT(is_piece_in_check(board, 6, 5));
+    destroy_game(board);
+
+    create_board_fen(board, "rnb1kbnr/ppppp1pp/q4p2/7Q/4P3/8/PPPP1PPP/RNB1KBNR");
+    ASSERT(is_piece_in_check(board, 0, 4) == true);
+    ASSERT(board[0][0] != NULL);
+    destroy_game(board);
 
     PASS();
 }
@@ -67,7 +66,7 @@ TEST test_is_king_in_check()
     create_board_fen(board, "8/2k5/8/8/8/4N1B1/8/1Q6");
     ASSERT(is_king_in_check(board, false));
     destroy_game(board);
-    
+
     create_board_fen(board, "8/2k5/8/3N4/8/8/5B2/1Q6");
     ASSERT(is_king_in_check(board, false));
     destroy_game(board);
@@ -79,6 +78,42 @@ TEST test_is_king_in_check()
     create_board_fen(board, "rnbqkbnr/ppppp1pp/5p2/7Q/4P3/8/PPPP1PPP/RNB1KBNR");
     ASSERT(is_king_in_check(board, false));
     destroy_game(board);
+    
+    create_board_fen(board, "rnb1kbnr/ppppp1pp/q4p2/7Q/4P3/8/PPPP1PPP/RNB1KBNR");
+    ASSERT(is_king_in_check(board, false));
+    destroy_game(board);
+
+    PASS();
+}
+
+TEST test_try_potential_moves()
+{
+    struct piece* board[BOARD_ROWS][BOARD_COLS];
+    bool result;
+
+    create_board_fen(board, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    result = get_pawn_moves(board, true, 6, 0);
+    ASSERT(result == true);
+    ASSERT(try_potential_moves(board, true, 6, 0) == true);
+    destroy_game(board);
+
+    create_board_fen(board, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    result = get_straight_moves(board, 7, 6);
+    ASSERT(result == false);
+    ASSERT(try_potential_moves(board, true, 7, 6) == false);
+    destroy_game(board);
+
+    create_board_fen(board, "rnb1kbnr/ppppp1pp/q4p2/7Q/4P3/8/PPPP1PPP/RNB1KBNR");
+    result = get_king_moves(board, 0, 4);
+    ASSERT(result == true);
+    ASSERT(try_potential_moves(board, false, 0, 4) == true);
+    struct move* current = board[0][4]->move_list;
+    while(current != NULL)
+    {
+        ASSERT(current->row == 0);
+        ASSERT(current->col == 3);
+        current = current->next;
+    }
 
     PASS();
 }
@@ -89,5 +124,6 @@ SUITE (test_move_handler)
     RUN_TEST(test_get_pawn_moves);
     RUN_TEST(test_is_piece_in_check);
     RUN_TEST(test_is_king_in_check);
+    RUN_TEST(test_try_potential_moves);
 }
 
