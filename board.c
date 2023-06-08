@@ -4,6 +4,7 @@
 #include <ctype.h>
 
 void highlight_square(int row, int col);
+enum piece_type get_piece_type_from_char(char c);
 
 void create_board(struct piece* board[BOARD_ROWS][BOARD_COLS])
 {
@@ -79,34 +80,39 @@ void create_board_fen(struct piece* board[BOARD_ROWS][BOARD_COLS], const char* f
         else
         {
             bool is_white = isupper(c);
-            enum piece_type piece_type;
-            switch (tolower(c))
-            {
-                case 'p':
-                    piece_type = PAWN;
-                    break;
-                case 'n':
-                    piece_type = KNIGHT;
-                    break;
-                case 'b':
-                    piece_type = BISHOP;
-                    break;
-                case 'r':
-                    piece_type = ROOK;
-                    break;
-                case 'q':
-                    piece_type = QUEEN;
-                    break;
-                case 'k':
-                    piece_type = KING;
-                    break;
-                default:
-                    break;
-            }
+            enum piece_type piece_type = get_piece_type_from_char(c);
             board[row][col] = create_piece(piece_type, is_white);
             col++;
         }
         index++;
+    }
+}
+
+enum piece_type get_piece_type_from_char(char c)
+{
+    switch (tolower(c))
+    {
+        case 'p':
+            return PAWN;
+            break;
+        case 'n':
+            return KNIGHT;
+            break;
+        case 'b':
+            return BISHOP;
+            break;
+        case 'r':
+            return ROOK;
+            break;
+        case 'q':
+            return QUEEN;
+            break;
+        case 'k':
+            return KING;
+            break;
+        default:
+            return PAWN;
+            break;
     }
 }
 
