@@ -22,24 +22,28 @@ struct piece* create_piece(enum piece_type type, bool is_white)
 
 struct piece* destroy_piece(struct piece* piece)
 {
-    if(piece == NULL)
+    if (piece == NULL)
     {
         return NULL;
     }
-    if(piece->move_list == NULL)
+
+    if (piece->move_list != NULL)
     {
-        free(piece);
-        piece = NULL;
-        return NULL;
+        piece->move_list = clear_potential_moves(piece);
     }
-    piece->move_list = clear_potential_moves(piece->move_list);
     free(piece);
+    piece = NULL;
     return NULL;
 }
 
 
-struct move* clear_potential_moves(struct move* first)
+struct move* clear_potential_moves(struct piece* piece)
 {
+    if(piece == NULL)
+    {
+        return NULL;
+    }
+    struct move* first = piece->move_list;
     if(first == NULL)
     {
         return NULL;
@@ -50,6 +54,7 @@ struct move* clear_potential_moves(struct move* first)
         free(first);
         first = next;
     }
+    piece->move_list = NULL;
     return NULL;
 }
 

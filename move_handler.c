@@ -17,7 +17,7 @@ bool update_potential_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool wh
     {
         return false;
     }
-    board[row][col]->move_list = clear_potential_moves(board[row][col]->move_list);
+    board[row][col]->move_list = clear_potential_moves(board[row][col]);
 
     bool found_move = false;
     
@@ -36,7 +36,7 @@ bool update_potential_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], bool wh
         found_move = get_straight_moves(board, row, col);
         break;
     case QUEEN:
-        found_move = (get_diagonal_moves(board, row, col) || get_straight_moves(board, row, col));
+        found_move = get_queen_moves(board, row, col);
         break;
     case KING:
         found_move = get_king_moves(board, row, col);
@@ -139,6 +139,16 @@ bool get_knight_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int 
     return found_moves;
 }
 
+bool get_queen_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col)
+{
+    bool found_moves = false;
+
+    found_moves = get_diagonal_moves(board, row, col);
+    found_moves = get_straight_moves(board, row, col) || found_moves;
+
+    return found_moves;
+}
+
 bool get_diagonal_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col)
 {
     bool found_moves = false;
@@ -202,6 +212,7 @@ bool is_piece_in_check(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int
 {
     int diagonal_directions[4][2] = {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     int straight_directions[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    int knight_directions[8][2] = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}, {2, -1}, {2, 1}};
 
     for (int i = 0; i < 4; i++)
     {
@@ -234,7 +245,6 @@ bool is_piece_in_check(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int
         }
     }
 
-
     for (int i = 0; i < 4; i++)
     {
         int dx = straight_directions[i][0];
@@ -263,6 +273,26 @@ bool is_piece_in_check(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int
             }
             new_row += dx;
             new_col += dy;
+        }
+    }
+
+    for(int i = 0; i < 8; i++)
+    {
+        int dx = knight_directions[i][0];
+        int dy = knight_directions[i][1];
+        int new_row = row + dx;
+        int new_col = col + dy;
+        if(new_row < 0 || new_row >= BOARD_ROWS || new_col < 0 || new_col >= BOARD_COLS)
+        {
+            continue;
+        }
+
+        if(board[new_row][new_col] != NULL)
+        {
+            if(board[new_row][new_col]->is_white != board[row][col]->is_white && board[new_row][new_col]->type == KNIGHT)
+            {
+                return true;
+            }
         }
     }
 

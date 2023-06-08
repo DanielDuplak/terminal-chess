@@ -9,11 +9,7 @@
 
 void create_board(struct piece* board[BOARD_ROWS][BOARD_COLS]);
 
-void render_board(struct piece* board[BOARD_ROWS][BOARD_COLS]);
-
-void render_line();
-
-void print_letters();
+void create_board_fen(struct piece* board[BOARD_ROWS][BOARD_COLS], const char* fen_string);
 
 char get_piece_char_for_render(enum piece_type type);
 

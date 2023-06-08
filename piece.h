@@ -29,7 +29,7 @@ struct piece* create_piece(enum piece_type type, bool is_white);
 struct piece* destroy_piece(struct piece* piece);
 
 
-struct move* clear_potential_moves(struct move* first);
+struct move* clear_potential_moves(struct piece* piece);
 
 
 struct move* create_move_list(struct move* first, int row, int col);

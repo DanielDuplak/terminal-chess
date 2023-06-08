@@ -16,6 +16,8 @@ bool get_knight_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int 
 
 bool get_king_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col);
 
+bool get_queen_moves(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col);
+
 bool is_piece_in_check(struct piece* board[BOARD_ROWS][BOARD_COLS], int row, int col);
 
 bool is_king_in_check(struct piece* board[BOARD_ROWS][BOARD_COLS], bool whites_turn);

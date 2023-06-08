@@ -1,6 +1,7 @@
 #include "board.h"
 #include <stdio.h>
 #include <ncurses.h>
+#include <ctype.h>
 
 void highlight_square(int row, int col);
 
@@ -44,59 +45,71 @@ void create_board(struct piece* board[BOARD_ROWS][BOARD_COLS])
     }
 }
 
-
-void render_board(struct piece* board[BOARD_ROWS][BOARD_COLS])
+void create_board_fen(struct piece* board[BOARD_ROWS][BOARD_COLS], const char* fen_string)
 {
-    char c;
-    print_letters();
-    render_line();
-    for(int row = 0; row < BOARD_ROWS; row++)
+    if (fen_string == NULL)
     {
-        printf("%d ", 8-row);
-        for(int col = 0; col < BOARD_COLS; col++)
-        {
-            printf(YEL "| " RESET);
-            if(board[row][col] != NULL)
-            {
-                c = (board[row][col] == NULL) ? ' ' : get_piece_char_for_render(board[row][col]->type);
-                printf((board[row][col]->is_white) ? "%c " : RED "%c " RESET, c);
-            }
-            else
-            {
-                printf("  ");
-            }
-
-            if(col == BOARD_COLS-1)
-            {
-                printf(YEL "|\n" RESET);
-            }
-        }
-        render_line();
+        return;
     }
-}
 
-void render_line()
-{
-    printf("  ");
-    for(int i = 0; i < BOARD_ROWS; i++)
+    for (int row = 0; row < BOARD_ROWS; row++)
     {
-        printf(YEL "o---" RESET);
-        if(i == 7)
+        for (int col = 0; col < BOARD_COLS; col++)
         {
-            printf(YEL "o\n" RESET);
+            board[row][col] = NULL;
         }
     }
+
+    int index = 0;
+    int row = 0;
+    int col = 0;
+    while (fen_string[index] != '\0' && fen_string[index] != ' ')
+    {
+        char c = fen_string[index];
+        if (c == '/')
+        {
+            row++;
+            col = 0;
+        }
+        else if (isdigit(c))
+        {
+            int num_of_empty_squares = (int)(c - '0');
+            col += num_of_empty_squares;
+        }
+        else
+        {
+            bool is_white = isupper(c);
+            enum piece_type piece_type;
+            switch (tolower(c))
+            {
+                case 'p':
+                    piece_type = PAWN;
+                    break;
+                case 'n':
+                    piece_type = KNIGHT;
+                    break;
+                case 'b':
+                    piece_type = BISHOP;
+                    break;
+                case 'r':
+                    piece_type = ROOK;
+                    break;
+                case 'q':
+                    piece_type = QUEEN;
+                    break;
+                case 'k':
+                    piece_type = KING;
+                    break;
+                default:
+                    break;
+            }
+            board[row][col] = create_piece(piece_type, is_white);
+            col++;
+        }
+        index++;
+    }
 }
 
-void print_letters()
-{
-    printf("  ");
-    for(int i = 0; i < BOARD_ROWS; i++)
-    {
-        printf("  %c ", (char)(i+'A'));
-    }
-    printf("\n");
-}
 
 char get_piece_char_for_render(enum piece_type type)
 {

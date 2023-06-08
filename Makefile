@@ -11,7 +11,7 @@ MAIN_SRCS := main.c game.c board.c piece.c move_handler.c renderer.c
 # Tests compilation target and its source files
 TEST_TARGET := tests/all_tests
 TEST_SRCS := game.c board.c piece.c move_handler.c renderer.c \
-	 tests/all_tests.c tests/test_game.c tests/test_board.c tests/test_piece.c tests/move_handler.c tests/renderer.c
+	 tests/all_tests.c tests/test_game.c tests/test_board.c tests/test_piece.c tests/test_move_handler.c tests/test_renderer.c
 
 # Build directory
 BUILD_DIR := ./build

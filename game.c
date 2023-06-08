@@ -24,7 +24,9 @@ bool is_game_over(struct piece* board[BOARD_ROWS][BOARD_COLS], bool is_whites_tu
 void play_game()
 {
     struct piece* board[BOARD_ROWS][BOARD_COLS];
-    create_board(board);
+    //create_board(board);
+    char* starting_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    create_board_fen(board, starting_fen);
     bool is_whites_turn = true;
 
     init_rendering();
@@ -99,7 +101,7 @@ void destroy_game(struct piece* board[BOARD_ROWS][BOARD_COLS])
     {
         for(int col = 0; col < BOARD_COLS; col++)
         {
-            destroy_piece(board[row][col]);
+            board[row][col] = destroy_piece(board[row][col]);
         }
     }
 }
